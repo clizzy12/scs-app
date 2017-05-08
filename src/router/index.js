@@ -24,8 +24,8 @@ export default new Router({
   routes: [
     { path: '/', component: HomeView },
     { path: '/directory/', component: DirectoryView },
-    { path: '/directory/department/:department', component: DirectoryView },
     { path: '/directory/:name?', component: MemberView },
+    { path: '/directory/department/:department', component: DirectoryView },
     { path: '/courses/', component: CourseSelectView },
     { path: '/courses/course/:course', component: CourseView },
     { path: '/courses/:courseList', component: CourseListView },

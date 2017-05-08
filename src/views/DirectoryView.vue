@@ -78,7 +78,7 @@ export default {
     findBy: function(directory, sortValue){
       if(sortValue.length > 0){
         return directory.filter(function (item) {
-          return item.fullname.includes(sortValue)
+          return item.full_name.includes(sortValue.toLowerCase())
         })
       }else{
         return directory
