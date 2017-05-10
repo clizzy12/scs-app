@@ -56,7 +56,30 @@ export default {
     const isInitialRender = this.$root._isMounted
     return {
       query: '',
-      transition: 'slide-left'
+      transition: 'slide-left',
+      directory: (function(state) {
+        let department = state.route.params.department;
+        if (department) {
+          let final_list = [];
+          let list = state.directory.list;
+          let directory_length = state.directory.list.length;
+          for (let x = 0; x < directory_length; x++) {
+            let person = list[x];
+            let position_count = list[x].positions.length;
+            for(let y = 0; y < position_count; y++) {
+              if (person.positions && person.positions[y].department === department) {
+                final_list.push(person);
+                break;
+              }
+            }
+          }
+
+          return final_list;
+        }
+        else {
+          return state.directory.list;
+        }
+      })(this.$store.state)
     }
   },
 
@@ -66,23 +89,30 @@ export default {
 
   computed: {
     loaded() {
-      return this.$store.state.directory.list ? true : false
+      return this.directory.length ? true : false
     },
     directoryFilter() {
-      let directory = this.findBy(this.$store.state.directory.list, this.query)
+      let directory = this.findBy(this.directory, this.query)
       return directory
     }
   },
 
   methods: {
     findBy: function(directory, sortValue){
-      if(sortValue.length > 0){
-        return directory.filter(function (item) {
-          return item.full_name.includes(sortValue.toLowerCase())
-        })
-      }else{
-        return directory
+      if(!sortValue){
+        return directory;
       }
+
+      let filtered = [];
+      let directory_length = directory.length;
+      for (let i = 0; i < directory_length; i++) {
+        let normalised = directory[i].full_name.toString().toLowerCase();
+        if (normalised.indexOf(sortValue.toLowerCase()) > -1) {
+          filtered.push(directory[i]);
+        }
+      }
+
+      return filtered;
     }
   }
 }

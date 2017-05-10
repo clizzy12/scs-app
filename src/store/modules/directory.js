@@ -7,13 +7,10 @@ export default {
     list: []
   },
   actions: {
-    GET_DIRECTORY: ({ commit, state }, department = '') => {
-      if (state.all_directory && state.all_directory.length > 0) {
-        commit('SET_DIRECTORY', { data: state.all_directory, department: department });
-        Promise.resolve(state.list);
-      }
-      else {
-        return apollo.query({
+    GET_DIRECTORY: ({ commit, state }) => {
+      return state.list.length
+        ? Promise.resolve(state.list)
+        : apollo.query({
           query: gql`
             {
               directory {
@@ -36,36 +33,21 @@ export default {
             }
           `
         }).then((res,err) => {
-          if (res) {
-            commit('SET_DIRECTORY', { data: res.data, department: department })
-            return res.data
-          } else {
-            Promise.reject(":err :directory graphql failed")
-          }
-        }).catch((err) => {
-          console.error(err.locations)
-          console.error(`GraphQL Error: ${err.message}`)
-        });
-      }
+         if (res) {
+          commit('SET_DIRECTORY', res.data)
+          return res.data
+        } else {
+          Promise.reject(":err :directory graphql failed")
+        }
+      }).catch((err) =>{
+        console.error(err.locations)
+        console.error(`GraphQL Error: ${err.message}`)
+      })
     }
   },
   mutations: {
     SET_DIRECTORY: (state, data) => {
-      if (data.department) {
-        let filtered_list = {};
-        filtered_list = data.data.directory.filter(function(item){
-          return item.positions.find(position => position.department === data.department);
-        });
-
-        state.list = filtered_list;
-      }
-      else {
-        state.list = data.data.directory;
-      }
-
-      if (!state.all_directory) {
-        state.all_directory = data.data;
-      }
+      state.list = data.directory
     }
   }
 }
